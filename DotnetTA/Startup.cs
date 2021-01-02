@@ -33,7 +33,9 @@ namespace DotnetTA
             Console.WriteLine(connectionString);
             services.AddControllers();
             services.AddScoped<ITickerInfoRepository>(_ => new TickerInfoRepository(connectionString));
+            services.AddScoped<ITechnicalAnalysisRepository>(_ => new TechnicalAnalysisRepository(connectionString));
             services.AddScoped<ITickerInfoService, TickerInfoService>();
+            services.AddScoped<ITechnicalAnalysisService, TechnicalAnalysisService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
