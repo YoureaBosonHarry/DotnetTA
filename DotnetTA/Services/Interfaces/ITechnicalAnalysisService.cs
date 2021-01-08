@@ -9,6 +9,6 @@ namespace DotnetTA.Services.Interfaces
     public interface ITechnicalAnalysisService
     {
         Task<IEnumerable<RsiModel>> GetRSIAsync();
-        Task InsertRSIAsync();
+        Task InsertRSIAsync(string ticker);
     }
 }

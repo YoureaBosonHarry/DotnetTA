@@ -1,6 +1,7 @@
 ﻿using DotnetTA.Models;
 using DotnetTA.Repositories.Interfaces;
 using DotnetTA.Services.Interfaces;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +13,13 @@ namespace DotnetTA.Services
     {
         private readonly ITechnicalAnalysisRepository technicalAnalysisRepository;
         private readonly ITickerInfoRepository tickerInfoRepository;
+        private readonly ILogger logger;
 
         public TechnicalAnalysisService(ITechnicalAnalysisRepository technicalAnalysisRepository, ITickerInfoRepository tickerInfoRepository)
         {
             this.technicalAnalysisRepository = technicalAnalysisRepository;
             this.tickerInfoRepository = tickerInfoRepository;
+            this.logger = Serilog.Log.ForContext<TechnicalAnalysisService>();
         }
 
         public async Task<IEnumerable<RsiModel>> GetRSIAsync()
@@ -24,46 +27,44 @@ namespace DotnetTA.Services
             return await this.technicalAnalysisRepository.GetRSIAsync();
         }
 
-        public async Task InsertRSIAsync()
+        public async Task InsertRSIAsync(string ticker)
         {
             var rsiPeriods = new List<int>() { 2, 6, 14 };
             var allTickers = await this.tickerInfoRepository.GetAllTickers();
-            foreach(var ticker in allTickers)
+            var dailyInfo = await this.tickerInfoRepository.GetDailyInfoByTicker(ticker);
+            if (!dailyInfo.Any()) return;
+            this.logger.Information($"Adding {ticker} RSI");
+            var rsiModel = new RsiModel()
             {
-                var dailyInfo = await this.tickerInfoRepository.GetDailyInfoByTicker(ticker.Ticker);
-                if (!dailyInfo.Any()) continue;
-                var rsiModel = new RsiModel()
+                Ticker = ticker,
+                DateAdded = dailyInfo.Last().DateAdded
+            };
+            foreach (var period in rsiPeriods)
+            {
+                try
                 {
-                    Ticker = ticker.Ticker,
-                    DateAdded = dailyInfo.Last().DateAdded
-                };
-                foreach (var period in rsiPeriods)
-                {
-                    try
+                    var periodAdjClose = dailyInfo.Select(i => i.AdjClose).TakeLast(period + 1);
+                    var rsi = CalculateRsi(periodAdjClose);
+                    if (period == 2)
                     {
-                        var periodAdjClose = dailyInfo.Select(i => i.AdjClose).TakeLast(period + 1);
-                        var rsi = CalculateRsi(periodAdjClose);
-                        if (period == 2)
-                        {
-                            rsiModel.TwoDayRsi = rsi;
-                        }
-                        else if (period == 6)
-                        {
-                            rsiModel.SixDayRsi = rsi;
-                        }
-                        else if (period == 14)
-                        {
-                            rsiModel.FourteenDayRsi = rsi;
-                        }
+                        rsiModel.TwoDayRsi = rsi;
                     }
-                    catch (Exception) 
+                    else if (period == 6)
                     {
-                        Console.WriteLine("Exception");
+                        rsiModel.SixDayRsi = rsi;
                     }
-                    
+                    else if (period == 14)
+                    {
+                        rsiModel.FourteenDayRsi = rsi;
+                    }
                 }
-                await this.technicalAnalysisRepository.InsertRSIByTickerAsync(rsiModel);
+                catch (Exception e) 
+                {
+                    this.logger.Error(e.Message);
+                }
+                
             }
+            await this.technicalAnalysisRepository.InsertRSIByTickerAsync(rsiModel);
         }
 
         private static decimal CalculateRsi(IEnumerable<decimal> closePrices)

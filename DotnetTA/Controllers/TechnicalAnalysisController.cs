@@ -1,6 +1,7 @@
 ﻿using DotnetTA.Models;
 using DotnetTA.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,9 +29,9 @@ namespace DotnetTA.Controllers
 
         [HttpPost]
         [Route("InsertRSI")]
-        public async Task<ActionResult> GetRSIByTickerAsync([FromQuery] string ticker) 
+        public async Task<ActionResult> InsertRSIAsync([FromBody]string ticker)
         {
-            await this.technicalAnalysisService.InsertRSIAsync();
+            await this.technicalAnalysisService.InsertRSIAsync(ticker);
             return Ok();
         }
     }
