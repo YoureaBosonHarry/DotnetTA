@@ -22,7 +22,7 @@ namespace DotnetTA.Repositories
         {
             using (var conn = new NpgsqlConnection(this.connectionString))
             {
-                var results = await conn.QueryAsync<RsiModel>("GetDailyRsi",commandType: System.Data.CommandType.StoredProcedure);
+                var results = await conn.QueryAsync<RsiModel>("TechnicalIndicators.GetDailyRsi",commandType: System.Data.CommandType.StoredProcedure);
                 return results;
             }
         }
@@ -37,7 +37,7 @@ namespace DotnetTA.Repositories
                 sqlParams.Add("_TwoDayRsi", rsiModel.TwoDayRsi);
                 sqlParams.Add("_SixDayRsi", rsiModel.SixDayRsi);
                 sqlParams.Add("_FourteenDayRsi", rsiModel.FourteenDayRsi);
-                await conn.ExecuteAsync("InsertDailyRsi", sqlParams, commandType: System.Data.CommandType.StoredProcedure);
+                await conn.ExecuteAsync("TechnicalIndicators.InsertDailyRsi", sqlParams, commandType: System.Data.CommandType.StoredProcedure);
             }
         }
     }

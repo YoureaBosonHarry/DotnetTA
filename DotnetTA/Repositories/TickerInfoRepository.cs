@@ -25,7 +25,7 @@ namespace DotnetTA.Repositories
         {
             using (var conn = new NpgsqlConnection(this.connectionString))
             {
-                var result = await conn.QueryAsync<Tickers>("GetTickers", commandType: CommandType.StoredProcedure);
+                var result = await conn.QueryAsync<Tickers>("MarketData.GetTickers", commandType: CommandType.StoredProcedure);
                 return result;
             }
         }
@@ -36,7 +36,7 @@ namespace DotnetTA.Repositories
             {
                 var sqlParams = new DynamicParameters();
                 sqlParams.Add("_Ticker", ticker);
-                await conn.ExecuteAsync("InsertTicker", sqlParams, commandType: CommandType.StoredProcedure);
+                await conn.ExecuteAsync("MarketData.InsertTicker", sqlParams, commandType: CommandType.StoredProcedure);
             }
         }
 
@@ -46,7 +46,7 @@ namespace DotnetTA.Repositories
             {
                 var sqlParams = new DynamicParameters();
                 sqlParams.Add("_Ticker", ticker);
-                var result = await conn.QueryAsync<TickerDailyInfo>("GetDailyInfoByTicker", sqlParams, commandType: CommandType.StoredProcedure);
+                var result = await conn.QueryAsync<TickerDailyInfo>("MarketData.GetDailyInfoByTicker", sqlParams, commandType: CommandType.StoredProcedure);
                 return result;
             }
         }
@@ -64,7 +64,7 @@ namespace DotnetTA.Repositories
                 sqlParams.Add("_DailyClose", tickerDailyInfo.DailyClose);
                 sqlParams.Add("_Volume", tickerDailyInfo.Volume);
                 sqlParams.Add("_AdjClose", tickerDailyInfo.AdjClose);
-                await conn.ExecuteAsync("InsertDailyInfo", sqlParams, commandType: CommandType.StoredProcedure);
+                await conn.ExecuteAsync("MarketData.InsertDailyInfo", sqlParams, commandType: CommandType.StoredProcedure);
             }
         }
     }
