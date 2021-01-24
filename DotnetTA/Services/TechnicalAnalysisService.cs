@@ -30,9 +30,12 @@ namespace DotnetTA.Services
         public async Task InsertRSIAsync(string ticker)
         {
             var rsiPeriods = new List<int>() { 2, 6, 14 };
-            var allTickers = await this.tickerInfoRepository.GetAllTickers();
             var dailyInfo = await this.tickerInfoRepository.GetDailyInfoByTicker(ticker);
-            if (!dailyInfo.Any()) return;
+            if (!dailyInfo.Any() || dailyInfo.Count() < rsiPeriods.Max()) 
+            {
+                this.logger.Warning($"Computation of RSI for {ticker} has failed");
+                return;
+            }
             this.logger.Information($"Adding {ticker} RSI");
             var rsiModel = new RsiModel()
             {
@@ -65,6 +68,34 @@ namespace DotnetTA.Services
                 
             }
             await this.technicalAnalysisRepository.InsertRSIByTickerAsync(rsiModel);
+        }
+
+        public async Task InsertSMAAsync(string ticker)
+        {
+            var dailyInfo = await this.tickerInfoRepository.GetDailyInfoByTicker(ticker);
+            var periods = new List<int> { 50, 200 };
+            if (!dailyInfo.Any() || dailyInfo.Count() < periods.Max())
+            {
+                return;
+            }
+            var smaModel = new SMA()
+            {
+                Ticker = ticker,
+                DateAdded = dailyInfo.Last().DateAdded
+            };
+            foreach (var period in periods)
+            {
+                var sma = dailyInfo.Select(i => i.AdjClose).TakeLast(period + 1).Average();
+                if (period == 50)
+                {
+                    smaModel.FiftyDaySMA = sma;
+                }
+                else if (period == 200)
+                {
+                    smaModel.TwoHundredDaySMA = sma;
+                }
+            }
+            await this.technicalAnalysisRepository.InsertSMAByTickerAsync(smaModel);
         }
 
         private static decimal CalculateRsi(IEnumerable<decimal> closePrices)

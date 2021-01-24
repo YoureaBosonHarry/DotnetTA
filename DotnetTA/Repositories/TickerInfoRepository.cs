@@ -32,7 +32,7 @@ namespace DotnetTA.Repositories
 
         public async Task InsertTicker(string ticker)
         {
-            using (var conn = new NpgsqlConnection(this.connectionString)) 
+            using (var conn = new NpgsqlConnection(this.connectionString))
             {
                 var sqlParams = new DynamicParameters();
                 sqlParams.Add("_Ticker", ticker);
@@ -51,7 +51,7 @@ namespace DotnetTA.Repositories
             }
         }
 
-        public async Task InsertDailyInfo(TickerDailyInfo tickerDailyInfo) 
+        public async Task InsertDailyInfo(TickerDailyInfo tickerDailyInfo)
         {
             using (var conn = new NpgsqlConnection(this.connectionString))
             {

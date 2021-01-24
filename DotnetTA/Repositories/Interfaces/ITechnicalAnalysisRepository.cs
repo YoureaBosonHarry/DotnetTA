@@ -10,5 +10,6 @@ namespace DotnetTA.Repositories.Interfaces
     {
         Task<IEnumerable<RsiModel>> GetRSIAsync();
         Task InsertRSIByTickerAsync(RsiModel rsiModel);
+        Task InsertSMAByTickerAsync(SMA sma);
     }
 }

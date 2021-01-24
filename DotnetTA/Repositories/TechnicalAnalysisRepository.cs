@@ -40,5 +40,18 @@ namespace DotnetTA.Repositories
                 await conn.ExecuteAsync("TechnicalIndicators.InsertDailyRsi", sqlParams, commandType: System.Data.CommandType.StoredProcedure);
             }
         }
+
+        public async Task InsertSMAByTickerAsync(SMA sma)
+        {
+            using (var conn = new NpgsqlConnection(this.connectionString))
+            {
+                var sqlParams = new DynamicParameters();
+                sqlParams.Add("_Ticker", sma.Ticker);
+                sqlParams.Add("_DateAdded", sma.DateAdded);
+                sqlParams.Add("_FiftyDaySMA", sma.FiftyDaySMA);
+                sqlParams.Add("_TwoHundredDaySMA", sma.TwoHundredDaySMA);
+                await conn.ExecuteAsync("TechnicalIndicators.InsertDailyRsi", sqlParams, commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
     }
 }

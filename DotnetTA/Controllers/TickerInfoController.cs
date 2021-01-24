@@ -33,7 +33,6 @@ namespace DotnetTA.Controllers
         [Route("InsertTicker")]
         public async Task<ActionResult> InsertTickerAsync([FromQuery]string ticker) 
         {
-            Console.WriteLine($"Inserting {ticker}...");
             await this.tickerInfoService.InsertTickerAsync(ticker);
             return Ok();
         }

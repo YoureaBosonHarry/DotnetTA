@@ -3,18 +3,15 @@ using DotnetTA.Repositories.Interfaces;
 using DotnetTA.Services;
 using DotnetTA.Services.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using System.Reflection;
 
 namespace DotnetTA
 {
@@ -31,34 +28,22 @@ namespace DotnetTA
         public void ConfigureServices(IServiceCollection services)
         {
             var connectionString = Environment.GetEnvironmentVariable("CONNECTIONSTRING");
-            Console.WriteLine(connectionString);
-            services.AddControllers();
+            //services.AddControllers();
             services.AddScoped<ITickerInfoRepository>(_ => new TickerInfoRepository(connectionString));
             services.AddScoped<ITechnicalAnalysisRepository>(_ => new TechnicalAnalysisRepository(connectionString));
             services.AddScoped<ITickerInfoService, TickerInfoService>();
             services.AddScoped<ITechnicalAnalysisService, TechnicalAnalysisService>();
+            services.AddRazorPages();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            app.UseSerilogRequestLogging();
-
-            app.UseHttpsRedirection();
-
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
             app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseStaticFiles();
+            app.UseSerilogRequestLogging();
+            app.UseEndpoints(endpoints => endpoints.MapControllers());
         }
     }
 }

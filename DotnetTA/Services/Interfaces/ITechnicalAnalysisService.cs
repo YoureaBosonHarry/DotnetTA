@@ -10,5 +10,6 @@ namespace DotnetTA.Services.Interfaces
     {
         Task<IEnumerable<RsiModel>> GetRSIAsync();
         Task InsertRSIAsync(string ticker);
+        Task InsertSMAAsync(string ticker);
     }
 }

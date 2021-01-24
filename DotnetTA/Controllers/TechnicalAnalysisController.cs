@@ -34,5 +34,13 @@ namespace DotnetTA.Controllers
             await this.technicalAnalysisService.InsertRSIAsync(ticker);
             return Ok();
         }
+
+        [HttpPost]
+        [Route("InsertSMA")]
+        public async Task<ActionResult> InsertSMAAsync([FromBody] string ticker)
+        {
+            await this.technicalAnalysisService.InsertSMAAsync(ticker);
+            return Ok();
+        }
     }
 }
